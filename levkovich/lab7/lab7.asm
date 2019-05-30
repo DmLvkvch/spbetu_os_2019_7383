@@ -13,7 +13,6 @@ DATA SEGMENT
 	OVL_PATH            db 64	dup (0), '$'
 	DTA                 db 43 DUP (?)
 	KEEP_PSP            dw 0
-	PATH_TO             db 'Path to the called file: ','$'
 	ERROR_ALLOC         db 'Failed to allocate memory to load overlay!',13,10,'$'
 	BLOCK_ADDR          dw 0
 	CALL_ADDR           dd 0
