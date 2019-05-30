@@ -37,41 +37,6 @@ PRINT PROC NEAR
 	pop ax
 	ret
 PRINT ENDP
-;--------------------------------------------------------------------------------
-FREE_MEM PROC 
-	mov bx, offset LAST_BYTE
-	mov ax,es
-	sub bx, ax
-	mov cl,4h
-	shr bx,cl 
-	mov ah,4ah
-	int 21h
-	jnc MEM_FREED	
-
-	mov dx,offset ERROR_FREEING
-	call PRINT
-	cmp ax,7
-	mov dx,offset ERROR_MCM
-	je FREE_MEM_PRINT_ERROR
-	cmp ax,8
-	mov dx,offset ERROR_NO_MEM
-	je FREE_MEM_PRINT_ERROR
-	cmp ax,9
-	mov dx,offset ERROR_WRONG_ADDR
-	je FREE_MEM_PRINT_ERROR	
-		
-FREE_MEM_PRINT_ERROR:
-	call PRINT
-	mov dx,offset STRENDL
-	call PRINT
-
-	xor AL,AL
-	mov AH,4Ch
-	int 21H
-	
-MEM_FREED:
-	ret
-FREE_MEM ENDP
 ;---------------------------------------------------------------
 FIND_PATH PROC 
 	push ds
@@ -196,6 +161,41 @@ SUCSESS_ALLOC:
 	ret
 FIND_OVL_SIZE ENDP
 ;---------------------------------------------------------------
+
+FREE_MEM PROC 
+		mov ax,STACK
+		mov bx,es
+		sub ax,bx 
+mov bx,ax
+	mov ah,4ah
+	int 21h
+	jnc MEM_FREED	
+
+	mov dx,offset ERROR_FREEING
+	call PRINT
+	cmp ax,7
+	mov dx,offset ERROR_MCM
+	je FREE_MEM_PRINT_ERROR
+	cmp ax,8
+	mov dx,offset ERROR_NO_MEM
+	je FREE_MEM_PRINT_ERROR
+	cmp ax,9
+	mov dx,offset ERROR_WRONG_ADDR
+
+		
+FREE_MEM_PRINT_ERROR:
+	call PRINT
+	mov dx,offset STRENDL
+	call PRINT
+
+	xor AL,AL
+	mov AH,4Ch
+	int 21H
+	
+MEM_FREED:
+	ret
+FREE_MEM ENDP
+
 CALL_OVL PROC 
 	push dx
 	push bx
@@ -207,7 +207,8 @@ CALL_OVL PROC
 	mov dx, seg OVL_PATH 
 	mov ds, dx	
 	mov dx, offset OVL_PATH	
-
+	push ss
+	push sp
 	mov ax, 4B03h 
 	int 21h
 	push dx
@@ -236,7 +237,6 @@ CALL_OVL PROC
 	je OVL_ERROR_PRINT
 	cmp ax, 10 
 	mov dx, offset Err10
-	je OVL_ERROR_PRINT
 	
 OVL_ERROR_PRINT:
 	call PRINT
@@ -257,6 +257,8 @@ OVL_NO_ERROR:
 
 OVL_RET:
 	pop dx
+	pop sp
+	pop ss
 	mov es, KEEP_PSP
 	pop ax
 	pop bx
