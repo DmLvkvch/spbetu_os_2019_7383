@@ -1,3 +1,7 @@
+STACK SEGMENT STACK
+	DW 80h DUP (?)
+STACK ENDS
+
 ASSUME CS:CODE, DS:DATA, ES:DATA, SS:STACK
 
 DATA SEGMENT
@@ -36,10 +40,11 @@ PRINT PROC NEAR
 PRINT ENDP
 ;--------------------------------------------------------------------------------
 FREE_MEM PROC 
-	mov bx,ss
-	add bx,10h
+	mov bx, offset LAST_BYTE
 	mov ax,es
 	sub bx, ax
+	mov cl,4h
+	shr bx,cl 
 	mov ah,4ah
 	int 21h
 	jnc MEM_FREED	
@@ -280,8 +285,7 @@ MAIN PROC FAR
 MAIN ENDP
 CODE ENDS
 
-STACK SEGMENT STACK
-	DW 80h DUP (?)
-STACK ENDS
+LAST_BYTE SEGMENT	
+LAST_BYTE ENDS	
 
 END MAIN
